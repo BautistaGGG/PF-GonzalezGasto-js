@@ -1,16 +1,24 @@
 // implementando LUXON
 const dateTime = luxon.DateTime;
 const now = dateTime.now()
-console.log(now.toLocaleString());
-console.log(now);
-const diaLuxon = now.c.day
-const mesLuxon = now.c.month
-const mesDosLuxon = now.monthLong
-const añoLuxon = now.c.year
-const horaLuxon = now.c.hour
-const minutoLuxon = now.c.minute
 
-console.log(`Esto se logeo el ${now.toLocaleString()} a las ${horaLuxon}:${minutoLuxon}`);
+console.log(now);
+
+const minutoLuxon = now.c.minute
+const horaLuxon = now.c.hour
+
+const diaLuxon = now.c.day
+const nombreDelDiaLuxon = now.weekdayLong
+
+const mesLuxon = now.c.month
+const nombreDelMesLuxon = now.monthLong
+
+const añoLuxon = now.c.year
+
+const fechaCompleta = now.toLocaleString(dateTime.DATE_FULL)
+
+const mensajeConfechaDeReserva = `El ${nombreDelDiaLuxon} ${fechaCompleta}, a las ${horaLuxon}:${minutoLuxon} hs.`
+console.log(mensajeConfechaDeReserva);
 
 //RENDERIZANDO data ingresada CON INPUTS a través del DOM
     const articleOne = document.getElementById("articleOneID")
@@ -48,15 +56,13 @@ function otorgandoTurnoAlUsuario(){
     //retornando y renderizado la data de localStorage
         let retornandoData = localStorage.getItem("infoTurnos")
         let stringintoArray = JSON.parse(retornandoData)
-        console.log(stringintoArray);
-        console.log(stringintoArray[turnoInicial -1]);
 
     //renderizando en el DOM
         let nombreRecibido = stringintoArray[turnoInicial -1].nombre
         let turnoDado = stringintoArray[turnoInicial -1].turno = turnoInicial++
         let liContenedor = document.createElement("li")
         liContenedor.innerHTML = `
-            <p> ${nombreRecibido} recibió el turno N° ${turnoDado} </p>
+            <p> ${nombreRecibido} recibió el turno N° ${turnoDado} - ${mensajeConfechaDeReserva}</p>
         `
         ulContenedor.appendChild(liContenedor)
 
@@ -125,11 +131,10 @@ window.addEventListener("load", () => {
     if(hayDataEnLS){
         let stringintoArray = JSON.parse(hayDataEnLS)
         stringintoArray.map(objeto => {
-            console.log(objeto);
             let liContenedor = document.createElement("li")
             if (objeto.nombre != "") {
                 liContenedor.innerHTML = `
-                    <p> ${objeto.nombre} recibió el turno N° ${objeto.turno} </p>
+                    <p> ${objeto.nombre} recibió el turno N° ${objeto.turno} - ${mensajeConfechaDeReserva} </p>
                 `
                 ulContenedor.appendChild(liContenedor)
             } else{
@@ -139,6 +144,7 @@ window.addEventListener("load", () => {
                 ulContenedor.appendChild(liContenedor)
             }
         })
+
         //En caso de alcanzar el tope de turnos, se inhabilita "Enviar" y se muestra el texto de alerta:
             if (stringintoArray.length === topeDeTurnos) {
                 button.disabled = true
