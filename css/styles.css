@@ -1,0 +1,60 @@
+body,html{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: #000;
+    color: yellow;
+}
+
+main{
+    padding: 1em 1.5em;
+}
+
+
+#articleOneID{
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+}
+
+ul{
+    list-style: none;
+    padding: 0;
+}
+
+li{
+    border: 1px solid yellow;
+    text-align: center;
+}
+
+input{
+    background-color: #000;
+    color: yellow;
+    border: 2px solid yellow;
+    padding: .5em 1em;
+    text-transform: capitalize;
+}
+
+input:focus{
+    outline: 4spx solid yellow;
+    border: 2px solid yellow;
+}
+
+button{
+    background: yellow;
+    border: none;
+    padding: .5em 1em;
+}
+
+button:hover, button:focus{
+    cursor: pointer;
+    opacity: .7;
+}
+
+button:disabled{
+    cursor:not-allowed;
+}
+
+pre{
+    color: red;
+}
+
