@@ -1,8 +1,7 @@
 // implementando LUXON
 const dateTime = luxon.DateTime;
 const now = dateTime.now()
-
-console.log(now);
+const local = dateTime.local()
 
 const minutoLuxon = now.c.minute
 const horaLuxon = now.c.hour
@@ -17,16 +16,17 @@ const añoLuxon = now.c.year
 
 const fechaCompleta = now.toLocaleString(dateTime.DATE_FULL)
 
-const mensajeConfechaDeReserva = `El ${nombreDelDiaLuxon} ${fechaCompleta}, a las ${horaLuxon}:${minutoLuxon} hs.`
-console.log(mensajeConfechaDeReserva);
+const mensajeConfechaDeReserva = `
+    El ${nombreDelDiaLuxon} ${fechaCompleta}, a las ${horaLuxon}:${minutoLuxon} hs.
+`
 
 //RENDERIZANDO data ingresada CON INPUTS a través del DOM
     const articleOne = document.getElementById("articleOneID")
     const ulContenedor = document.getElementById("ulContenedor")
     const input = document.getElementById("inputID")
     const button = document.getElementById("buttonID")
-    //const botonReinicio = document.getElementById("buttonReiniciarID")
     const botonBorrar = document.getElementById("botonDeleteID")
+
 
 //logica del sistema
     let arrayDeTurnos = []
@@ -42,31 +42,34 @@ function otorgandoTurnoAlUsuario(){
         let primerLetra = input.value.charAt(0).toUpperCase()
         let restoDeLaPalabra = input.value.slice(1)
         let nombreEnMayuscula = primerLetra + restoDeLaPalabra 
-    
+        let horarioActual = `
+            ${local.toLocaleString(dateTime.DATE_HUGE)} a las${dateTime.local().toFormat("HH:mm")}
+        `
     //Pusheando data al array
         arrayDeTurnos.push({
             nombre: nombreEnMayuscula,
             turno: turnoInicial,
-            id: Date.now()
+            id: Date.now(),
+            horarioDeReserva: horarioActual
         })
-    //agregando arrayDeData al LocalStorage
+    //Agregando arrayDeData al LocalStorage
         let arrayIntoString = JSON.stringify(arrayDeTurnos)
         localStorage.setItem("infoTurnos", arrayIntoString)
     
-    //retornando y renderizado la data de localStorage
+    //Retornando y renderizado la data de localStorage
         let retornandoData = localStorage.getItem("infoTurnos")
         let stringintoArray = JSON.parse(retornandoData)
-
-    //renderizando en el DOM
+        
+    //Renderizando en el DOM
         let nombreRecibido = stringintoArray[turnoInicial -1].nombre
         let turnoDado = stringintoArray[turnoInicial -1].turno = turnoInicial++
         let liContenedor = document.createElement("li")
         liContenedor.innerHTML = `
-            <p> ${nombreRecibido} recibió el turno N° ${turnoDado} - ${mensajeConfechaDeReserva}</p>
+            <p> ${nombreRecibido} recibió el turno N° ${turnoDado} - ${horarioActual}</p>
         `
         ulContenedor.appendChild(liContenedor)
 
-    //vaciando el input y dandole focus automáticamente luego de presionar "Enviar"
+    //Vaciando el input y dandole focus automáticamente luego de presionar "Enviar"
         input.value = ""
         input.focus()
 
@@ -79,7 +82,6 @@ function otorgandoTurnoAlUsuario(){
             infoTurnos.innerText = ""
         }
 }
-
 
 function manejandoInputVacio(){
     intentoFallidoUno = true
@@ -94,7 +96,7 @@ function manejandoInputVacio(){
             alert("Ya se te había pedido que completes el input y lo volviste a dejar vacío. Perdiste tu turno")
             let liContenedor = document.createElement("li")
             liContenedor.innerHTML = `
-            <p> Se perdió el turno ${turnoInicial++} por FALTA DE DATOS </p>
+                <p> Se perdió el turno ${turnoInicial++} por FALTA DE DATOS </p>
             `
             ulContenedor.appendChild(liContenedor)
             input.value = ""
@@ -103,7 +105,7 @@ function manejandoInputVacio(){
         }
 }
 
-function renderizandoData(){
+function renderizandoData() {
     !input.value == "" ? otorgandoTurnoAlUsuario() : manejandoInputVacio()
 }
     
@@ -111,6 +113,9 @@ function borrarTurnos(){
     arrayDeTurnos = []
     infoTurnos.innerText = "Todos los turnos han sido borrados exitosamente"
     articleOne.appendChild(infoTurnos)
+    setTimeout(() => {
+        infoTurnos.remove()
+    }, 2500)
     ulContenedor.innerText = ""
     button.disabled = false
     turnoInicial = 1
@@ -126,15 +131,23 @@ botonBorrar.addEventListener("click", () => {
     borrarTurnos()
 })
 
+//manejo de datos del localStorage una vez que la pagina es reiniciada
+
 window.addEventListener("load", () => {
     let hayDataEnLS = localStorage.getItem("infoTurnos")
     if(hayDataEnLS){
         let stringintoArray = JSON.parse(hayDataEnLS)
+        console.log(stringintoArray);
+        
         stringintoArray.map(objeto => {
             let liContenedor = document.createElement("li")
             if (objeto.nombre != "") {
+                
+                let nombre = objeto.nombre
+                let turno = objeto.turno
+                let horario = objeto.horarioDeReserva
                 liContenedor.innerHTML = `
-                    <p> ${objeto.nombre} recibió el turno N° ${objeto.turno} - ${mensajeConfechaDeReserva} </p>
+                    <p> ${nombre} recibió el turno N° ${turno} - ${horario} </p>
                 `
                 ulContenedor.appendChild(liContenedor)
             } else{
@@ -155,3 +168,12 @@ window.addEventListener("load", () => {
             }
     }
 })
+
+/*//testeo
+
+const btnTesteo = document.getElementById("testeo")
+
+btnTesteo.addEventListener("click", () => {
+    let tiempoActual = dateTime.local().toFormat("dd/MM/yyyy HH:mm:ss");
+    console.log(tiempoActual);
+})*/

@@ -29,13 +29,13 @@ li{
 input{
     background-color: #000;
     color: yellow;
-    border: 2px solid yellow;
+    border: 2px solid gray;
     padding: .5em 1em;
     text-transform: capitalize;
 }
 
 input:focus{
-    outline: 4spx solid yellow;
+    outline: none;
     border: 2px solid yellow;
 }
 
