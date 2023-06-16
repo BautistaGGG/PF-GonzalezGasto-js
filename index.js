@@ -1,4 +1,4 @@
-// implementando LUXON
+// Implementando LUXON
 const dateTime = luxon.DateTime;
 const now = dateTime.now()
 const local = dateTime.local()
@@ -20,7 +20,7 @@ const mensajeConfechaDeReserva = `
     El ${nombreDelDiaLuxon} ${fechaCompleta}, a las ${horaLuxon}:${minutoLuxon} hs.
 `
 
-//RENDERIZANDO data ingresada CON INPUTS a través del DOM
+//Obteniendo Elementos a través del DOM
     const articleOne = document.getElementById("articleOneID")
     const ulContenedor = document.getElementById("ulContenedor")
     const input = document.getElementById("inputID")
@@ -35,7 +35,6 @@ const mensajeConfechaDeReserva = `
     let intentoFallidoUno = false
     let intentoFallidoDos = false
     let turnosLlenos = false
-    let infoTurnos = document.createElement("pre")
 
 function otorgandoTurnoAlUsuario(){
     //Mayuscula a primer letra del input
@@ -43,7 +42,7 @@ function otorgandoTurnoAlUsuario(){
         let restoDeLaPalabra = input.value.slice(1)
         let nombreEnMayuscula = primerLetra + restoDeLaPalabra 
         let horarioActual = `
-            ${local.toLocaleString(dateTime.DATE_HUGE)} a las${dateTime.local().toFormat("HH:mm")}
+            ${local.toLocaleString(dateTime.DATE_HUGE)} a las ${dateTime.local().toFormat("HH:mm")}
         `
     //Pusheando data al array
         arrayDeTurnos.push({
@@ -73,27 +72,42 @@ function otorgandoTurnoAlUsuario(){
         input.value = ""
         input.focus()
 
-    //En caso de alcanzar el tope de turnos, inhabilitar el boton "Enviar" y mostrar el texto:
+    //En caso de alcanzar el tope de turnos, inhabilitar el boton "Enviar" y mostrar SweetAlert de advertencia:
         if (stringintoArray.length === topeDeTurnos) {
             button.disabled = true
-            infoTurnos.innerText = "Todos los turnos están reservados. Intente en otro momento"
-            articleOne.appendChild(infoTurnos) 
-        }else {
-            infoTurnos.innerText = ""
+            input.disabled = true
+            Swal.fire({
+                icon: "error",
+                title: 'Error!',
+                text: 'Todos los turnos están reservados. Intente en otro momento',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            }) 
         }
 }
 
 function manejandoInputVacio(){
     intentoFallidoUno = true
         if (intentoFallidoUno && !intentoFallidoDos) {
-            alert("No podemos asignarte un turno si no ingresas tu NOMBRE en el INPUT. Intenta de nuevo")         
+            //Implementando SweetAlert
+            Swal.fire({
+                title: 'Cuidado!',
+                text: 'No podemos asignarte un turno si no ingresas tu NOMBRE en el INPUT. Intenta de nuevo',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            })         
             intentoFallidoDos = true
         } else if(intentoFallidoUno && intentoFallidoDos){
             arrayDeTurnos.push({
                 nombre: "",
                 turno: turnoInicial
             })
-            alert("Ya se te había pedido que completes el input y lo volviste a dejar vacío. Perdiste tu turno")
+            Swal.fire({
+                title: 'Error!',
+                text: "Ya se te había pedido que completes el input y lo volviste a dejar vacío. Perdiste tu turno",
+                icon: 'error',
+                confirmButtonText: 'OK'
+            })
             let liContenedor = document.createElement("li")
             liContenedor.innerHTML = `
                 <p> Se perdió el turno ${turnoInicial++} por FALTA DE DATOS </p>
@@ -111,13 +125,9 @@ function renderizandoData() {
     
 function borrarTurnos(){
     arrayDeTurnos = []
-    infoTurnos.innerText = "Todos los turnos han sido borrados exitosamente"
-    articleOne.appendChild(infoTurnos)
-    setTimeout(() => {
-        infoTurnos.remove()
-    }, 2500)
     ulContenedor.innerText = ""
     button.disabled = false
+    input.disabled = false
     turnoInicial = 1
     localStorage.removeItem("infoTurnos")
     localStorage.clear()
@@ -131,7 +141,7 @@ botonBorrar.addEventListener("click", () => {
     borrarTurnos()
 })
 
-//manejo de datos del localStorage una vez que la pagina es reiniciada
+//manejo de datos del LocalStorage una vez que la pagina es reiniciada
 
 window.addEventListener("load", () => {
     let hayDataEnLS = localStorage.getItem("infoTurnos")
@@ -161,19 +171,17 @@ window.addEventListener("load", () => {
         //En caso de alcanzar el tope de turnos, se inhabilita "Enviar" y se muestra el texto de alerta:
             if (stringintoArray.length === topeDeTurnos) {
                 button.disabled = true
-                infoTurnos.innerText = "Todos los turnos están reservados. Intente en otro momento"
-                articleOne.appendChild(infoTurnos) 
-            }else {
-                infoTurnos.innerText = ""
+                Swal.fire({
+                    title:'Error!',
+                    text:"Todos los turnos están reservados. Intente en otro momento",
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
             }
     }
 })
 
-/*//testeo
-
-const btnTesteo = document.getElementById("testeo")
-
-btnTesteo.addEventListener("click", () => {
-    let tiempoActual = dateTime.local().toFormat("dd/MM/yyyy HH:mm:ss");
-    console.log(tiempoActual);
-})*/
+//testeo API
+fetch("https://648b4e0217f1536d65eac242.mockapi.io/turnos/horariosDisponibles")
+    .then(res => res.json())
+    .then(data => console.log(data))
