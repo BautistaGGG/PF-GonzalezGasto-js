@@ -27,7 +27,6 @@ const mensajeConfechaDeReserva = `
     const button = document.getElementById("buttonID")
     const botonBorrar = document.getElementById("botonDeleteID")
 
-
 //logica del sistema
     let arrayDeTurnos = []
     let turnoInicial = 1
@@ -63,10 +62,35 @@ function otorgandoTurnoAlUsuario(){
         let nombreRecibido = stringintoArray[turnoInicial -1].nombre
         let turnoDado = stringintoArray[turnoInicial -1].turno = turnoInicial++
         let liContenedor = document.createElement("li")
-        liContenedor.innerHTML = `
-            <p> ${nombreRecibido} recibió el turno N° ${turnoDado} - ${horarioActual}</p>
-        `
-        ulContenedor.appendChild(liContenedor)
+
+    //Simulando un chequeo para luego confirmar el turno
+        Swal.fire({
+            icon: 'info',
+            toast: true,
+            position: 'top-end',
+            title: `Revisando disponibilidad...`,
+            timer: 2500,
+            timerProgressBar:true,
+            showConfirmButton: false
+        })
+
+        //Antes de renderizar, muestro la alerta con SweetAlert2 y luego el mensaje en el DOM
+        setTimeout(() => {
+            Swal.fire({
+                icon: 'success',
+                toast: true,
+                position: 'top-end',
+                title: `Turno N° ${turnoDado} reservado correctamente`,
+                timer: 2800,
+                timerProgressBar:true,
+                showConfirmButton: false
+            })
+
+            liContenedor.innerHTML = `
+                <p> ${nombreRecibido} recibió el turno N° ${turnoDado} - ${horarioActual}</p>
+            `
+            ulContenedor.appendChild(liContenedor)
+        },3000)
 
     //Vaciando el input y dandole focus automáticamente luego de presionar "Enviar"
         input.value = ""
@@ -77,10 +101,9 @@ function otorgandoTurnoAlUsuario(){
             button.disabled = true
             input.disabled = true
             Swal.fire({
-                icon: "error",
+                icon: 'error',
                 title: 'Error!',
                 text: 'Todos los turnos están reservados. Intente en otro momento',
-                icon: 'error',
                 confirmButtonText: 'OK'
             }) 
         }
@@ -88,25 +111,30 @@ function otorgandoTurnoAlUsuario(){
 
 function manejandoInputVacio(){
     intentoFallidoUno = true
-        if (intentoFallidoUno && !intentoFallidoDos) {
-            //Implementando SweetAlert
+        if (intentoFallidoUno && !intentoFallidoDos) {            
+            intentoFallidoDos = true
             Swal.fire({
+                icon: 'warning',
                 title: 'Cuidado!',
                 text: 'No podemos asignarte un turno si no ingresas tu NOMBRE en el INPUT. Intenta de nuevo',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            })         
-            intentoFallidoDos = true
+                timerProgressBar:true,
+                timer: 3500,
+                allowOutsideClick:false,
+                showConfirmButton: false      
+            })
         } else if(intentoFallidoUno && intentoFallidoDos){
             arrayDeTurnos.push({
                 nombre: "",
                 turno: turnoInicial
             })
             Swal.fire({
-                title: 'Error!',
-                text: "Ya se te había pedido que completes el input y lo volviste a dejar vacío. Perdiste tu turno",
                 icon: 'error',
-                confirmButtonText: 'OK'
+                title: 'Turno Perdido!',
+                text: "Ya se te había pedido que completes el input y lo volviste a dejar vacío. Perdiste tu turno",
+                timerProgressBar:true,
+                timer: 4000,
+                allowOutsideClick:false,
+                showConfirmButton: false  
             })
             let liContenedor = document.createElement("li")
             liContenedor.innerHTML = `
@@ -152,7 +180,6 @@ window.addEventListener("load", () => {
         stringintoArray.map(objeto => {
             let liContenedor = document.createElement("li")
             if (objeto.nombre != "") {
-                
                 let nombre = objeto.nombre
                 let turno = objeto.turno
                 let horario = objeto.horarioDeReserva
@@ -168,7 +195,8 @@ window.addEventListener("load", () => {
             }
         })
 
-        //En caso de alcanzar el tope de turnos, se inhabilita "Enviar" y se muestra el texto de alerta:
+        //En caso de alcanzar el tope de turnos, se deshabilitan "Enviar" y  
+        //el Input, a la vez que se muestra el texto de alerta:
             if (stringintoArray.length === topeDeTurnos) {
                 button.disabled = true
                 Swal.fire({
@@ -182,6 +210,8 @@ window.addEventListener("load", () => {
 })
 
 //testeo API
-fetch("https://648b4e0217f1536d65eac242.mockapi.io/turnos/horariosDisponibles")
+/*
+    fetch("https://648b4e0217f1536d65eac242.mockapi.io/turnos/horariosDisponibles")
     .then(res => res.json())
     .then(data => console.log(data))
+*/
