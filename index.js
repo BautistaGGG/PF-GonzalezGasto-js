@@ -1,4 +1,5 @@
 // Implementando LUXON
+
 const dateTime = luxon.DateTime;
 const now = dateTime.now()
 const local = dateTime.local()
@@ -50,6 +51,7 @@ function otorgandoTurnoAlUsuario(){
             id: Date.now(),
             horarioDeReserva: horarioActual
         })
+
     //Agregando arrayDeData al LocalStorage
         let arrayIntoString = JSON.stringify(arrayDeTurnos)
         localStorage.setItem("infoTurnos", arrayIntoString)
@@ -77,8 +79,8 @@ function otorgandoTurnoAlUsuario(){
         //Antes de renderizar, muestro la alerta con SweetAlert2 y luego el mensaje en el DOM
         setTimeout(() => {
             Swal.fire({
-                icon: 'success',
                 toast: true,
+                icon: 'success',
                 position: 'top-end',
                 title: `Turno N° ${turnoDado} reservado correctamente`,
                 timer: 2800,
@@ -92,20 +94,26 @@ function otorgandoTurnoAlUsuario(){
             ulContenedor.appendChild(liContenedor)
         },3000)
 
-    //Vaciando el input y dandole focus automáticamente luego de presionar "Enviar"
+        //Vaciando el input y dandole focus automáticamente luego de presionar "Enviar"
         input.value = ""
         input.focus()
 
-    //En caso de alcanzar el tope de turnos, inhabilitar el boton "Enviar" y mostrar SweetAlert de advertencia:
+        //En caso de alcanzar el tope de turnos, inhabilitar el boton "Enviar" y mostrar SweetAlert de advertencia:
         if (stringintoArray.length === topeDeTurnos) {
             button.disabled = true
             input.disabled = true
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Todos los turnos están reservados. Intente en otro momento',
-                confirmButtonText: 'OK'
-            }) 
+            setTimeout(() => {
+                Swal.fire({
+                    toast: true,
+                    icon: 'info',
+                    position: 'top-end',
+                    title: 'No más turnos!',
+                    text: 'Todos los turnos fueron reservados. Intente en otro momento',
+                    timer: 2800,
+                    timerProgressBar:true,
+                    showConfirmButton: false
+                })
+            }, 3000) 
         }
 }
 
@@ -159,6 +167,11 @@ function borrarTurnos(){
     turnoInicial = 1
     localStorage.removeItem("infoTurnos")
     localStorage.clear()
+    Swal.fire({
+        icon: 'error',
+        title: 'Borrados',
+        text: 'Todos los turnos han sido borrados!',
+    })
 }
 
 button.addEventListener("click", () => {
@@ -169,7 +182,7 @@ botonBorrar.addEventListener("click", () => {
     borrarTurnos()
 })
 
-//manejo de datos del LocalStorage una vez que la pagina es reiniciada
+//Manejo de datos del LocalStorage una vez que la pagina es reiniciada
 
 window.addEventListener("load", () => {
     let hayDataEnLS = localStorage.getItem("infoTurnos")
@@ -199,19 +212,112 @@ window.addEventListener("load", () => {
         //el Input, a la vez que se muestra el texto de alerta:
             if (stringintoArray.length === topeDeTurnos) {
                 button.disabled = true
-                Swal.fire({
-                    title:'Error!',
-                    text:"Todos los turnos están reservados. Intente en otro momento",
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                })
+                setTimeout(() => {
+                    Swal.fire({
+                        toast: true,
+                        icon: 'info',
+                        position: 'top-end',
+                        title: 'No más turnos!',
+                        text: 'Todos los turnos fueron reservados. Intente en otro momento',
+                        timer: 2800,
+                        timerProgressBar:true,
+                        showConfirmButton: false
+                    })
+                }, 1000) 
             }
     }
 })
 
 //testeo API
-/*
+
     fetch("https://648b4e0217f1536d65eac242.mockapi.io/turnos/horariosDisponibles")
     .then(res => res.json())
-    .then(data => console.log(data))
-*/
+    .then(data => {
+        console.log(data)
+
+        //Dia a seleccionar para reserva de turno usando SweetAlert2
+
+        const sabado = 0
+        const domingo = 1
+
+        const opcionesDeDiasPorRadio = new Promise(resolve => {
+            resolve({
+                'Sábado': data[sabado].Dia,
+                'Domingo': data[domingo].Dia
+            })
+        })
+        //El usuario debe elegir el día a reservar mediante input, Sábado o Domingo
+        Swal.fire({
+            title:'Selecciona el día que quieres reservar',
+            input: 'radio',
+            inputOptions: opcionesDeDiasPorRadio,
+            inputValidator: (value) => {
+                //En caso de presionar 'OK' pero no seleccionar un día, será advertido
+                if(!value){
+                    return 'Es necesario seleccionar un día para obtener tu turno.'
+                }else{ 
+                    Swal.fire({
+                        icon: 'success',
+                        text:`Elegiste el ${value}. A continuación podrás elegir el horario`,
+                        showConfirmButton: false,
+                        allowOutsideClick:false,
+                        timer: 3000,
+                        timerProgressBar:true,        
+                    }) 
+                    //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
+                    if(value === "Sábado"){
+                        setTimeout(() => {
+                            Swal.fire({
+                                title: "Selecciona el horario para completar la reserva",
+                                input: 'select',
+                                inputOptions:{
+                                    'Mañana':{
+                                        turnoUno: data[sabado].Horarios[0],
+                                        turnoDos: data[sabado].Horarios[1],
+                                        turnoTres: data[sabado].Horarios[2],
+                                        turnoCuatro: data[sabado].Horarios[3],
+                                        turnoCinco: data[sabado].Horarios[4]
+                                    },
+                                    'Tarde':{
+                                        turnoCinco: data[sabado].Horarios[5],
+                                        turnoSeis: data[sabado].Horarios[6],
+                                        turnoSiete: data[sabado].Horarios[7],
+                                        turnoOcho: data[sabado].Horarios[8],
+                                        turnoNueve: data[sabado].Horarios[9]
+                                    }
+                                },
+                                inputPlaceholder: 'Elige un horario',
+                                showCancelButton: true,
+                            })   
+                        },3000)
+                        //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
+                    } else if(value === "Domingo"){
+                        setTimeout(() => {
+                            Swal.fire({
+                                title: "Selecciona el horario para completar la reserva",
+                                input: 'select',
+                                inputOptions:{
+                                    'Mañana':{
+                                        turnoUno: data[domingo].Horarios[0],
+                                        turnoDos: data[domingo].Horarios[1],
+                                        turnoTres: data[domingo].Horarios[2],
+                                        turnoCuatro: data[domingo].Horarios[3],
+                                        turnoCinco: data[domingo].Horarios[4]
+                                    },
+                                    'Tarde':{
+                                        turnoCinco: data[domingo].Horarios[5],
+                                        turnoSeis: data[domingo].Horarios[6],
+                                        turnoSiete: data[domingo].Horarios[7],
+                                        turnoOcho: data[domingo].Horarios[8],
+                                        turnoNueve: data[domingo].Horarios[9]
+                                    }
+                                },
+                                inputPlaceholder: 'Elige un horario',
+                                showCancelButton: true,
+                            })   
+                        },3000)
+                    }
+                }}
+        })       
+    });
+        
