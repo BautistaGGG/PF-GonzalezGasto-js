@@ -1,31 +1,13 @@
-// Implementando LUXON
-const dateTime = luxon.DateTime;
-const now = dateTime.now()
-const local = dateTime.local()
-
-const minutoLuxon = now.c.minute
-const horaLuxon = now.c.hour
-
-const diaLuxon = now.c.day
-const nombreDelDiaLuxon = now.weekdayLong
-
-const mesLuxon = now.c.month
-const nombreDelMesLuxon = now.monthLong
-
-const añoLuxon = now.c.year
-
-const fechaCompleta = now.toLocaleString(dateTime.DATE_FULL)
-
-const mensajeConfechaDeReserva = `
-    El ${nombreDelDiaLuxon} ${fechaCompleta}, a las ${horaLuxon}:${minutoLuxon} hs.
-`
-
 //Obteniendo Elementos a través del DOM
     const articleOne = document.getElementById("articleOneID")
     const ulContenedor = document.getElementById("ulContenedor")
     const input = document.getElementById("inputID")
     const button = document.getElementById("buttonID")
     const botonBorrar = document.getElementById("botonDeleteID")
+
+    //LUXON 
+    const dateTime = luxon.DateTime
+    const local = dateTime.local()
 
 //logica del sistema
     let arrayDeTurnos = []
@@ -155,7 +137,7 @@ function manejandoInputVacio(){
 }
 
 function renderizandoData() {
-    !input.value == "" ? otorgandoTurnoAlUsuario() : manejandoInputVacio()
+    !input.value == "" ? otorgandoTurnoAlUsuario() /*llamandoAPI()*/ : manejandoInputVacio()
 }
     
 function borrarTurnos(){
@@ -229,121 +211,123 @@ window.addEventListener("load", () => {
 
 //testeo API
 
-    fetch("https://648b4e0217f1536d65eac242.mockapi.io/turnos/horariosDisponibles")
-    .then(res => res.json())
-    .then(data => {
-        console.log(data)
+    function llamandoAPI() {
+        fetch("https://648b4e0217f1536d65eac242.mockapi.io/turnos/horariosDisponibles")
+        .then(res => res.json())
+        .then(data => {
+            //Dia a seleccionar para reserva de turno usando SweetAlert2
+            const sabado = 0
+            const domingo = 1
 
-        //Dia a seleccionar para reserva de turno usando SweetAlert2
-        const sabado = 0
-        const domingo = 1
-
-        const opcionesDeDiasPorRadio = new Promise(resolve => {
-            resolve({
-                'Sábado': data[sabado].Dia,
-                'Domingo': data[domingo].Dia
+            const opcionesDeDiasPorRadio = new Promise(resolve => {
+                resolve({
+                    'Sábado': data[sabado].Dia,
+                    'Domingo': data[domingo].Dia
+                })
             })
-        })
-        //El usuario debe elegir el día a reservar mediante input, Sábado o Domingo
-        Swal.fire({
-            title:'Selecciona el día que quieres reservar',
-            input: 'radio',
-            inputOptions: opcionesDeDiasPorRadio,
-            inputValidator: (value) => {
-                //En caso de presionar 'OK' pero no seleccionar un día, será advertido
-                if(!value){
-                    return 'Es necesario seleccionar un día para obtener tu turno.'
-                }else{ 
-                    Swal.fire({
-                        icon: 'success',
-                        text:`Elegiste el ${value}. A continuación podrás elegir el horario`,
-                        showConfirmButton: false,
-                        allowOutsideClick:false,
-                        timer: 3000,
-                        timerProgressBar:true,        
-                    }) 
-                    //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
-                    if(value === "Sábado"){
-                        setTimeout(() => {
-                            Swal.fire({
-                                title: "Selecciona el horario para completar la reserva",
-                                input: 'select',
-                                inputOptions:{
-                                    'Mañana':{
-                                        '08:00': data[sabado].Horarios[0],
-                                        '09:00': data[sabado].Horarios[1],
-                                        '10:00': data[sabado].Horarios[2],
-                                        '11:00': data[sabado].Horarios[3],
-                                        '12:00': data[sabado].Horarios[4]
-                                    },
-                                    'Tarde':{
-                                        '15:00': data[sabado].Horarios[5],
-                                        '16:00': data[sabado].Horarios[6],
-                                        '17:00': data[sabado].Horarios[7],
-                                        '18:00': data[sabado].Horarios[8],
-                                        '19:00': data[sabado].Horarios[9]
-                                    }
-                                },
-                                inputPlaceholder: 'Elige un horario',
-                                showCancelButton: true,
-                            }) 
-                            .then(result => {
-                                if(result.isConfirmed){
-                                    const turnoElegido = result.value;
-                                    Swal.fire({
-                                        toast: true,
-                                        showConfirmButton: false,
-                                        timer: 4000,
-                                        timerProgressBar:true,
-                                        icon: 'success',
-                                        position:'top-end', 
-                                        title: `El usuario eligió el ${turnoElegido}`,
-                                    })
-                                }
-                            })
-                        },3000)
+            //El usuario debe elegir el día a reservar mediante input, Sábado o Domingo
+            Swal.fire({
+                title:'¿Qué día quieres reservar?',
+                input: 'radio',
+                inputOptions: opcionesDeDiasPorRadio,
+                inputValidator: (value) => {
+                    //En caso de presionar 'OK' pero no seleccionar un día, será advertido
+                    if(!value){
+                        return 'Es necesario seleccionar un día para obtener tu turno.'
+                    }else{ 
+                        Swal.fire({
+                            icon: 'info',
+                            text:`Chequeando disponibilidad del ${value}....`,
+                            showConfirmButton: false,
+                            allowOutsideClick:false,
+                            timer: 4000,
+                            timerProgressBar:true,        
+                        }) 
                         //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
-                    } else if(value === "Domingo"){
-                        setTimeout(() => {
-                            Swal.fire({
-                                title: "Selecciona el horario para completar la reserva",
-                                input: 'select',
-                                inputOptions:{
-                                    'Mañana':{
-                                        '10:00': data[domingo].Horarios[0],
-                                        '10:30': data[domingo].Horarios[1],
-                                        '11:00': data[domingo].Horarios[2],
-                                        '11:30': data[domingo].Horarios[3],
-                                        '12:00': data[domingo].Horarios[4]
+                        if(value === "Sábado"){
+                            setTimeout(() => {
+                                Swal.fire({
+                                    title: 'Hay lugar disponible',
+                                    text: "Selecciona el horario para completar la reserva",
+                                    input: 'select',
+                                    inputOptions:{
+                                        'Mañana':{
+                                            '08:00': data[sabado].Horarios[0],
+                                            '09:00': data[sabado].Horarios[1],
+                                            '10:00': data[sabado].Horarios[2],
+                                            '11:00': data[sabado].Horarios[3],
+                                            '12:00': data[sabado].Horarios[4]
+                                        },
+                                        'Tarde':{
+                                            '15:00': data[sabado].Horarios[5],
+                                            '16:00': data[sabado].Horarios[6],
+                                            '17:00': data[sabado].Horarios[7],
+                                            '18:00': data[sabado].Horarios[8],
+                                            '19:00': data[sabado].Horarios[9]
+                                        }
                                     },
-                                    'Tarde':{
-                                        '16:00': data[domingo].Horarios[5],
-                                        '16:30': data[domingo].Horarios[6],
-                                        '17:00': data[domingo].Horarios[7],
-                                        '17:30': data[domingo].Horarios[8],
-                                        '18:00': data[domingo].Horarios[9]
+                                    inputPlaceholder: 'Elige un horario',
+                                    showCancelButton: true,
+                                }) 
+                                .then(result => {
+                                    if(result.isConfirmed){
+                                        const turnoElegido = result.value;
+                                        Swal.fire({
+                                            toast: true,
+                                            showConfirmButton: false,
+                                            timer: 4000,
+                                            timerProgressBar:true,
+                                            icon: 'success',
+                                            position:'top-end', 
+                                            title: `El usuario eligió el ${value}, con turno a las ${turnoElegido}hs.`,
+                                        })
                                     }
-                                },
-                                inputPlaceholder: 'Elige un horario',
-                                showCancelButton: true,
-                            })
-                            .then(result => {
-                                if(result.isConfirmed){
-                                    const turnoElegido = result.value;
-                                    Swal.fire({
-                                        toast: true,
-                                        showConfirmButton: false,
-                                        timer: 4000,
-                                        timerProgressBar:true,
-                                        icon: 'success',
-                                        position:'top-end', 
-                                        title: `El usuario eligió el ${turnoElegido}`,
-                                    })
-                                }
-                            })
-                        },3000)
-                    }
-                }}
-        })       
-    });
+                                })
+                            },4000)
+                            //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
+                        } else if(value === "Domingo"){
+                            setTimeout(() => {
+                                Swal.fire({
+                                    title: 'Hay lugar disponible!',
+                                    text: "Selecciona el horario para completar la reserva",
+                                    input: 'select',
+                                    inputOptions:{
+                                        'Mañana':{
+                                            '10:00': data[domingo].Horarios[0],
+                                            '10:30': data[domingo].Horarios[1],
+                                            '11:00': data[domingo].Horarios[2],
+                                            '11:30': data[domingo].Horarios[3],
+                                            '12:00': data[domingo].Horarios[4]
+                                        },
+                                        'Tarde':{
+                                            '16:00': data[domingo].Horarios[5],
+                                            '16:30': data[domingo].Horarios[6],
+                                            '17:00': data[domingo].Horarios[7],
+                                            '17:30': data[domingo].Horarios[8],
+                                            '18:00': data[domingo].Horarios[9]
+                                        }
+                                    },
+                                    inputPlaceholder: 'Elige un horario',
+                                    showCancelButton: true,
+                                })
+                                .then(result => {
+                                    if(result.isConfirmed){
+                                        const turnoElegido = result.value;
+                                        Swal.fire({
+                                            toast: true,
+                                            showConfirmButton: false,
+                                            timer: 4000,
+                                            timerProgressBar:true,
+                                            icon: 'success',
+                                            position:'top-end', 
+                                            title: `El usuario eligió el ${value}, con turno a las ${turnoElegido}hs.`,
+                                        })
+                                    }
+                                })
+                            },4000)
+                        }
+                    }}
+            })       
+        })
+    }
         

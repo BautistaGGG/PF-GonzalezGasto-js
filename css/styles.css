@@ -94,7 +94,6 @@ li{
 }
 
 /*SweetAlert2 options*/
-.option-elements{
-    background: #476094;
-    color: #000;
+input[type="radio"]{
+    cursor:pointer
 }
