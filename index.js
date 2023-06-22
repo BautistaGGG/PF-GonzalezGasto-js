@@ -270,18 +270,18 @@ window.addEventListener("load", () => {
                                 input: 'select',
                                 inputOptions:{
                                     'Mañana':{
-                                        turnoUno: data[sabado].Horarios[0],
-                                        turnoDos: data[sabado].Horarios[1],
-                                        turnoTres: data[sabado].Horarios[2],
-                                        turnoCuatro: data[sabado].Horarios[3],
-                                        turnoCinco: data[sabado].Horarios[4]
+                                        '08:00': data[sabado].Horarios[0],
+                                        '09:00': data[sabado].Horarios[1],
+                                        '10:00': data[sabado].Horarios[2],
+                                        '11:00': data[sabado].Horarios[3],
+                                        '12:00': data[sabado].Horarios[4]
                                     },
                                     'Tarde':{
-                                        turnoCinco: data[sabado].Horarios[5],
-                                        turnoSeis: data[sabado].Horarios[6],
-                                        turnoSiete: data[sabado].Horarios[7],
-                                        turnoOcho: data[sabado].Horarios[8],
-                                        turnoNueve: data[sabado].Horarios[9]
+                                        '15:00': data[sabado].Horarios[5],
+                                        '16:00': data[sabado].Horarios[6],
+                                        '17:00': data[sabado].Horarios[7],
+                                        '18:00': data[sabado].Horarios[8],
+                                        '19:00': data[sabado].Horarios[9]
                                     }
                                 },
                                 inputPlaceholder: 'Elige un horario',
@@ -290,10 +290,17 @@ window.addEventListener("load", () => {
                             .then(result => {
                                 if(result.isConfirmed){
                                     const turnoElegido = result.value;
-                                    console.log(`El usuario eligió el ${turnoElegido}`);
+                                    Swal.fire({
+                                        toast: true,
+                                        showConfirmButton: false,
+                                        timer: 4000,
+                                        timerProgressBar:true,
+                                        icon: 'success',
+                                        position:'top-end', 
+                                        title: `El usuario eligió el ${turnoElegido}`,
+                                    })
                                 }
                             })
-                            console.log(`El usuarió eligió el ${value}`); 
                         },3000)
                         //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
                     } else if(value === "Domingo"){
@@ -303,18 +310,18 @@ window.addEventListener("load", () => {
                                 input: 'select',
                                 inputOptions:{
                                     'Mañana':{
-                                        turnoUno: data[domingo].Horarios[0],
-                                        turnoDos: data[domingo].Horarios[1],
-                                        turnoTres: data[domingo].Horarios[2],
-                                        turnoCuatro: data[domingo].Horarios[3],
-                                        turnoCinco: data[domingo].Horarios[4]
+                                        '10:00': data[domingo].Horarios[0],
+                                        '10:30': data[domingo].Horarios[1],
+                                        '11:00': data[domingo].Horarios[2],
+                                        '11:30': data[domingo].Horarios[3],
+                                        '12:00': data[domingo].Horarios[4]
                                     },
                                     'Tarde':{
-                                        turnoCinco: data[domingo].Horarios[5],
-                                        turnoSeis: data[domingo].Horarios[6],
-                                        turnoSiete: data[domingo].Horarios[7],
-                                        turnoOcho: data[domingo].Horarios[8],
-                                        turnoNueve: data[domingo].Horarios[9]
+                                        '16:00': data[domingo].Horarios[5],
+                                        '16:30': data[domingo].Horarios[6],
+                                        '17:00': data[domingo].Horarios[7],
+                                        '17:30': data[domingo].Horarios[8],
+                                        '18:00': data[domingo].Horarios[9]
                                     }
                                 },
                                 inputPlaceholder: 'Elige un horario',
@@ -323,16 +330,18 @@ window.addEventListener("load", () => {
                             .then(result => {
                                 if(result.isConfirmed){
                                     const turnoElegido = result.value;
-                                    console.log(`El usuario eligió el ${turnoElegido}`);
+                                    Swal.fire({
+                                        toast: true,
+                                        showConfirmButton: false,
+                                        timer: 4000,
+                                        timerProgressBar:true,
+                                        icon: 'success',
+                                        position:'top-end', 
+                                        title: `El usuario eligió el ${turnoElegido}`,
+                                    })
                                 }
                             })
-                            console.log(`El usuarió eligió el ${value}`);
                         },3000)
-                        /*const selectElemento = document.getElementsByClassName("swal2-select")[0]
-                        selectElemento.addEventListener("change", () => {
-                            console.log(selectElemento.options.selectedIndex);
-                            console.log(selectElemento.value);
-                        })*/
                     }
                 }}
         })       
