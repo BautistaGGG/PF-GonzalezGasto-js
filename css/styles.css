@@ -92,3 +92,9 @@ li{
     border: 1px solid #476094;
     text-align: center;
 }
+
+/*SweetAlert2 options*/
+.option-elements{
+    background: #476094;
+    color: #000;
+}

@@ -1,5 +1,4 @@
 // Implementando LUXON
-
 const dateTime = luxon.DateTime;
 const now = dateTime.now()
 const local = dateTime.local()
@@ -236,7 +235,6 @@ window.addEventListener("load", () => {
         console.log(data)
 
         //Dia a seleccionar para reserva de turno usando SweetAlert2
-
         const sabado = 0
         const domingo = 1
 
@@ -288,7 +286,14 @@ window.addEventListener("load", () => {
                                 },
                                 inputPlaceholder: 'Elige un horario',
                                 showCancelButton: true,
-                            })   
+                            }) 
+                            .then(result => {
+                                if(result.isConfirmed){
+                                    const turnoElegido = result.value;
+                                    console.log(`El usuario eligió el ${turnoElegido}`);
+                                }
+                            })
+                            console.log(`El usuarió eligió el ${value}`); 
                         },3000)
                         //En caso de seleccionar Sábado, podrá seleccionar un horario de ese día luego de 3 segundos
                     } else if(value === "Domingo"){
@@ -314,8 +319,20 @@ window.addEventListener("load", () => {
                                 },
                                 inputPlaceholder: 'Elige un horario',
                                 showCancelButton: true,
-                            })   
+                            })
+                            .then(result => {
+                                if(result.isConfirmed){
+                                    const turnoElegido = result.value;
+                                    console.log(`El usuario eligió el ${turnoElegido}`);
+                                }
+                            })
+                            console.log(`El usuarió eligió el ${value}`);
                         },3000)
+                        /*const selectElemento = document.getElementsByClassName("swal2-select")[0]
+                        selectElemento.addEventListener("change", () => {
+                            console.log(selectElemento.options.selectedIndex);
+                            console.log(selectElemento.value);
+                        })*/
                     }
                 }}
         })       
